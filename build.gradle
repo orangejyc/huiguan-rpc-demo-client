@@ -10,25 +10,27 @@ targetCompatibility = 1.8
 
 repositories {
     mavenCentral()
+    maven { url "http://60.205.184.158:8081/nexus/content/groups/public/" }
     maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
 }
 
 buildscript {
     ext {
-        springBootVersion = '1.4.1.RELEASE'
+        springBootVersion = '1.5.3.RELEASE'
     }
     repositories {
         mavenCentral()
     }
     dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.3.RELEASE")
     }
 }
 
 dependencies {
-    compile files('lib/rpc-demo-api-1.0-SNAPSHOT.jar')
-    compile('org.springframework.boot:spring-boot-starter-web:1.4.1.RELEASE')
-    compile("org.springframework.boot:spring-boot-starter-logging:1.4.1.RELEASE")
+    //compile files('lib/rpc-demo-api-1.0-SNAPSHOT.jar')
+    compile('org.springframework.boot:spring-boot-starter-web:1.5.3.RELEASE')
+    compile("org.springframework.boot:spring-boot-starter-logging:1.5.3.RELEASE")
+    compile('com.huiguan:rpc-demo-api:1.0-SNAPSHOT')
 
 
 
@@ -36,5 +38,78 @@ dependencies {
     compile("com.101tec:zkclient:0.10"){ exclude group:'log4j' }
 
 
-    testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '1.4.1.RELEASE'
+    testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '1.5.3.RELEASE'
+}
+
+allprojects {
+
+    repositories {
+        mavenCentral()
+        maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+    }
+
+    apply plugin: 'maven'
+    apply plugin: 'java'
+    apply plugin: 'idea'
+    apply plugin: 'eclipse'
+    apply plugin: 'jacoco'
+
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                repository(url: "http://60.205.184.158:8081/nexus/content/repositories/snapshots/") {
+                    authentication(userName: "admin", password: "admin123")
+                }
+                /* 发布前禁止更新releases版本
+                repository(url: "http://60.205.184.158:8081/nexus/content/repositories/releases/") {
+                    authentication(userName: "admin", password: "admin123")
+                }
+                */
+
+                pom.project {
+                    name project.name
+                    packaging 'jar'
+                    description 'service demo'
+                    url 'http://www.huiguan.com'
+
+                    scm {
+                        url ''
+                        connection ''
+                        developerConnection ''
+                    }
+
+                    licenses {
+                        license {
+                            name 'No License'
+                            url 'http://www.huiguan.com'
+                            distribution 'repo'
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            id 'juyongcheng'
+                            name 'Yongcheng Ju'
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+        classifier = 'javadoc'
+        from 'build/docs/javadoc'
+    }
+
+    task sourcesJar(type: Jar) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+    }
+
+    artifacts {
+        archives jar
+        archives javadocJar
+        archives sourcesJar
+    }
 }
