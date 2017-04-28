@@ -1,0 +1,40 @@
+group 'huiguan'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'spring-boot'
+apply plugin: 'idea'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+}
+
+buildscript {
+    ext {
+        springBootVersion = '1.4.1.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+
+dependencies {
+    compile files('lib/rpc-demo-api-1.0-SNAPSHOT.jar')
+    compile('org.springframework.boot:spring-boot-starter-web:1.4.1.RELEASE')
+    compile("org.springframework.boot:spring-boot-starter-logging:1.4.1.RELEASE")
+
+
+
+    compile("com.alibaba:dubbo:2.5.3"){ exclude group:'org.springframework' }
+    compile("com.101tec:zkclient:0.10"){ exclude group:'log4j' }
+
+
+    testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '1.4.1.RELEASE'
+}
